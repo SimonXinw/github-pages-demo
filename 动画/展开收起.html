@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>可展开文本</title>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-top: 20px;
+        background-color: #f0f0f0;
+      }
+
+      /* 容器样式 */
+      .text-container {
+        width: 80%;
+        max-width: 600px;
+        background-color: #000;
+        color: #fff;
+        padding: 20px;
+        overflow: hidden;
+        position: relative;
+        height: 300px; /* 默认高度 */
+        transition: height 0.5s ease;
+      }
+
+      .collapsed {
+        height: 300px; /* 初始高度类 */
+      }
+
+      .expanded {
+        height: auto; /* 展开时高度自动 */
+      }
+
+      /* 默认行的透明度 */
+      .text-line {
+        transition: opacity 0.5s ease;
+        opacity: 0; /* 初始为完全透明 */
+      }
+
+      /* 显示按钮样式 */
+      .show-button {
+        margin-top: 10px;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        background-color: #333;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 文本容器 -->
+    <div class="text-container collapsed" id="textContainer">
+      <!-- 多行文本内容 -->
+      <div id="textContent">
+        <div class="text-line">这是第 1 行文本。</div>
+        <div class="text-line">这是第 2 行文本。</div>
+        <div class="text-line">这是第 3 行文本。</div>
+        <div class="text-line">这是第 4 行文本。</div>
+        <div class="text-line">这是第 5 行文本。</div>
+        <div class="text-line">这是第 6 行文本。</div>
+        <div class="text-line">这是第 7 行文本。</div>
+        <div class="text-line">这是第 8 行文本。</div>
+        <div class="text-line">这是第 9 行文本。</div>
+        <div class="text-line">这是第 10 行文本。</div>
+        <div class="text-line">这是第 1 行文本。</div>
+        <div class="text-line">这是第 2 行文本。</div>
+        <div class="text-line">这是第 3 行文本。</div>
+        <div class="text-line">这是第 4 行文本。</div>
+        <div class="text-line">这是第 5 行文本。</div>
+        <div class="text-line">这是第 6 行文本。</div>
+        <div class="text-line">这是第 7 行文本。</div>
+        <div class="text-line">这是第 8 行文本。</div>
+        <div class="text-line">这是第 9 行文本。</div>
+        <div class="text-line">这是第 10 行文本。</div>
+        <div class="text-line">这是第 1 行文本。</div>
+        <div class="text-line">这是第 2 行文本。</div>
+        <div class="text-line">这是第 3 行文本。</div>
+        <div class="text-line">这是第 4 行文本。</div>
+        <div class="text-line">这是第 5 行文本。</div>
+        <div class="text-line">这是第 6 行文本。</div>
+        <div class="text-line">这是第 7 行文本。</div>
+        <div class="text-line">这是第 8 行文本。</div>
+        <div class="text-line">这是第 9 行文本。</div>
+        <div class="text-line">这是第 10 行文本。</div>
+      </div>
+    </div>
+
+    <!-- 展开按钮 -->
+    <button class="show-button" onclick="toggleExpand()">显示更多</button>
+
+    <script>
+      // 初始化状态
+      let isExpanded = false;
+      const textContainer = document.getElementById("textContainer");
+      const textLines = document.querySelectorAll(".text-line");
+
+      // 设置初始透明度
+      function setInitialOpacity() {
+        const totalLines = textLines.length;
+        textLines.forEach((line, index) => {
+          line.style.opacity = (totalLines - index) / totalLines; // 初始设置为逐行透明度
+        });
+      }
+
+      function toggleExpand() {
+        if (!isExpanded) {
+          // 展开容器
+          textContainer.classList.remove("collapsed");
+          textContainer.classList.add("expanded");
+          // 展开时，逐行变亮
+          gradualOpacityChange(true);
+
+          document.querySelector(".show-button").textContent = "收起";
+        } else {
+          // 收起容器
+          textContainer.classList.remove("expanded");
+          textContainer.classList.add("collapsed");
+          // 收起时，逐行变暗
+          gradualOpacityChange(false);
+          document.querySelector(".show-button").textContent = "显示更多";
+        }
+        isExpanded = !isExpanded;
+      }
+
+      // 逐行变亮或变暗
+      function gradualOpacityChange(isExpanding) {
+        const totalLines = textLines.length;
+        if (isExpanding) {
+          // 展开时逐行变亮
+          textLines.forEach((line, index) => {
+            setTimeout(() => {
+              line.style.opacity = 1; // 设置为完全可见
+            }, index * 32); // 每行之间延迟 32 毫秒
+          });
+        } else {
+          // 收起时逐行变暗，从下往上
+          for (let i = totalLines - 1; i >= 0; i--) {
+            setTimeout(() => {
+              textLines[i].style.opacity = (totalLines - i) / totalLines; // 根据行号逐行变暗
+            }, (totalLines - 1 - i) * 32); // 从下往上延迟
+          }
+        }
+      }
+
+      // 设置初始透明度
+      setInitialOpacity();
+    </script>
+  </body>
+</html>

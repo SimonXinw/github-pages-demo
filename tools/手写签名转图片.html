@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>手写板</title>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f4f4f4;
+        overflow: hidden;
+      }
+      #canvas {
+        border: 1px solid #ccc;
+        background-color: white;
+        max-width: 90%;
+        cursor: none; /* 隐藏默认指针 */
+      }
+      .controls {
+        text-align: center;
+        margin-top: 20px;
+      }
+      .toolbox {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+      }
+      /* 创建自定义画笔和橡皮擦指针 */
+
+      /* 定义笔形状的光标 */
+      .pen-cursor {
+        width: 16px;
+        height: 16px;
+        background-image: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iOTMzLjAwMDAwMHB0IiBoZWlnaHQ9IjEyODAuMDAwMDAwcHQiIHZpZXdCb3g9IjAgMCA5MzMuMDAwMDAwIDEyODAuMDAwMDAwIgogcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCI+CjxtZXRhZGF0YT4KQ3JlYXRlZCBieSBwb3RyYWNlIDEuMTUsIHdyaXR0ZW4gYnkgUGV0ZXIgU2VsaW5nZXIgMjAwMS0yMDE3CjwvbWV0YWRhdGE+CjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAuMDAwMDAwLDEyODAuMDAwMDAwKSBzY2FsZSgwLjEwMDAwMCwtMC4xMDAwMDApIgpmaWxsPSIjMDAwMDAwIiBzdHJva2U9Im5vbmUiPgo8cGF0aCBkPSJNODE4MCAxMjc4NSBjLTE5NyAtNDUgLTM1OSAtMTI2IC01MzggLTI2OSAtMzcgLTMwIC0xMzkgLTE0MSAtMjQ0Ci0yNjYgLTExNSAtMTM3IC0xODkgLTIxOCAtMjA2IC0yMjQgLTE1IC01IC0zOSAtMTMgLTU1IC0xOSAtMjcgLTkgLTMzNyAtNDAzCi03OTcgLTEwMTEgLTIwMCAtMjY0IC0yNDAgLTMyNiAtMjQwIC0zNzMgMCAtMjggLTg1IC0xNTQgLTUxMyAtNzYxIC0xNTc2Ci0yMjMzIC0zNTc3IC01MDcwIC00MTcwIC01OTEyIC0zNzMgLTUzMSAtNjk2IC05ODEgLTcxNyAtMTAwMCAtNTAgLTQ3IC01NQotNTggLTkwIC0yMDcgLTE3IC03MCAtMzcgLTE1NSAtNDUgLTE4OCAtOCAtMzMgLTk2IC00MDYgLTE5NSAtODMwIC05OSAtNDI0Ci0xODQgLTc4OCAtMTkwIC04MTAgLTQ0IC0xNzcgLTE4MCAtNzcyIC0xODAgLTc4OSAwIC0zNiAzNSAtODggNzEgLTEwOCA0NAotMjQgODYgLTIzIDEyOSAzIDE5IDEyIDYyOCA0NDIgMTM1NCA5NTcgODg1IDYyOCAxMzI0IDk0NSAxMzM3IDk2NiAxMCAxNyAxOQozOSAxOSA0OSAwIDIxIDIyMCAzNDggMjAzMCAzMDI3IDMwMjEgNDQ3MCAzMDc4IDQ1NTMgMzExNiA0NTY2IDE5IDYgNDEgMTcgNDgKMjMgOCA3IDE4OSAyODQgNDAxIDYxNyAzNjggNTc0IDM4OCA2MDggMzk0IDY2MyA2IDQ5IDE5IDc3IDc4IDE3MiA0MCA2MyA5MgoxNDMgMTE3IDE3OSA5NSAxMzYgMTY2IDMwOCAyMDggNTA0IDI2IDEyNCAzMSAzNTkgOSA0NDYgLTE2IDY2IC02NSAxNzYgLTg5CjIwNCAtNjkgNzggLTUxNCAzMjUgLTY3NyAzNzYgLTkyIDI4IC0yNzMgMzYgLTM2NSAxNXoiLz4KPC9nPgo8L3N2Zz4K");
+        background-size: contain;
+        background-repeat: no-repeat;
+        pointer-events: none;
+        position: absolute;
+        transform: translate(0%, -100%);
+      }
+
+      .eraser-cursor {
+        width: 4px;
+        height: 4px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        pointer-events: none;
+        position: absolute;
+        transform: translate(-50%, -50%);
+        box-shadow: 2px 3px 2px 0px rgba(0, 0, 0, 0.5);
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <div class="controls">
+      <button id="savePng">保存为 PNG</button>
+      <button id="saveJpg">保存为 JPG</button>
+      <button id="savePdf">保存为 PDF</button>
+      <button id="clear">清除画布</button>
+      <button id="eraser">橡皮擦</button>
+      <div class="toolbox">
+        <label
+          >画笔大小：<input
+            id="brushSize"
+            type="number"
+            min="1"
+            max="50"
+            value="2"
+        /></label>
+        <label
+          >画笔颜色：<input id="brushColor" type="color" value="#000000"
+        /></label>
+      </div>
+    </div>
+
+    <div id="customCursor" class="pen-cursor"></div>
+    <!-- 自定义指针 -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.2/jspdf.debug.js"></script>
+    <script>
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+      const customCursor = document.getElementById("customCursor");
+
+      let drawing = false;
+      let erasing = false;
+      let brushSize = 2;
+      let brushColor = "#000000";
+
+      function adjustCanvasSize() {
+        const aspectRatio = 16 / 9;
+        let width = window.innerWidth > 400 ? 400 : window.innerWidth;
+        let height = width / aspectRatio;
+
+        if (height > window.innerHeight) {
+          height = window.innerHeight;
+          width = height * aspectRatio;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+      }
+
+      adjustCanvasSize();
+      window.addEventListener("resize", adjustCanvasSize);
+
+      document.getElementById("brushSize").addEventListener("input", (e) => {
+        brushSize = parseInt(e.target.value);
+        updateCursor();
+      });
+
+      document.getElementById("brushColor").addEventListener("input", (e) => {
+        brushColor = e.target.value;
+      });
+
+      const updateCursor = () => {
+        if (erasing) {
+          customCursor.className = "eraser-cursor";
+          customCursor.style.width = `${brushSize * 4}px`;
+          customCursor.style.height = `${brushSize * 4}px`;
+        } else {
+          customCursor.className = "pen-cursor";
+          customCursor.style.width = brushSize * 8 + "px";
+          customCursor.style.height = brushSize * 8 + "px";
+        }
+      };
+
+      const startDrawing = (event) => {
+        event.preventDefault();
+        drawing = true;
+        ctx.beginPath();
+        const { offsetX, offsetY } = getEventCoordinates(event);
+        ctx.moveTo(offsetX, offsetY);
+      };
+
+      const draw = (event) => {
+        event.preventDefault();
+        if (!drawing) return;
+        const { offsetX, offsetY } = getEventCoordinates(event);
+        ctx.lineWidth = erasing ? brushSize * 4 : brushSize;
+        ctx.lineCap = "round";
+
+        if (erasing) {
+          ctx.clearRect(
+            offsetX - brushSize * 2,
+            offsetY - brushSize * 2,
+            brushSize * 4,
+            brushSize * 4
+          );
+        } else {
+          ctx.strokeStyle = brushColor;
+          ctx.lineTo(offsetX, offsetY);
+          ctx.stroke();
+        }
+      };
+
+      const stopDrawing = (event) => {
+        event.preventDefault();
+        drawing = false;
+        ctx.closePath();
+      };
+
+      const getEventCoordinates = (event) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = event.touches
+          ? event.touches[0].clientX - rect.left
+          : event.offsetX;
+        const y = event.touches
+          ? event.touches[0].clientY - rect.top
+          : event.offsetY;
+        return { offsetX: x, offsetY: y };
+      };
+
+      canvas.addEventListener("mousedown", startDrawing);
+      canvas.addEventListener("mousemove", draw);
+      canvas.addEventListener("mouseup", stopDrawing);
+      canvas.addEventListener("touchstart", startDrawing);
+      canvas.addEventListener("touchmove", draw);
+      canvas.addEventListener("touchend", stopDrawing);
+
+      canvas.addEventListener("mousemove", (e) => {
+        customCursor.style.left = `${e.pageX}px`;
+        customCursor.style.top = `${e.pageY}px`;
+      });
+
+      document.getElementById("savePng").addEventListener("click", () => {
+        const link = document.createElement("a");
+        link.download = "handwriting.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      });
+
+      document.getElementById("saveJpg").addEventListener("click", () => {
+        const link = document.createElement("a");
+        link.download = "handwriting.jpg";
+        link.href = canvas.toDataURL("image/jpeg");
+        link.click();
+      });
+
+      document.getElementById("savePdf").addEventListener("click", () => {
+        html2canvas(canvas).then((canvas) => {
+          const pdf = new jsPDF();
+          pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0);
+          pdf.save("handwriting.pdf");
+        });
+      });
+
+      document.getElementById("clear").addEventListener("click", () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        erasing = false;
+        document.getElementById("eraser").textContent = "橡皮擦";
+        updateCursor();
+      });
+
+      document.getElementById("eraser").addEventListener("click", () => {
+        erasing = !erasing;
+        document.getElementById("eraser").textContent = erasing
+          ? "画笔"
+          : "橡皮擦";
+        updateCursor();
+      });
+    </script>
+  </body>
+</html>

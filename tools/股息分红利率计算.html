@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>投资分红计算器</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        padding: 20px;
+        max-width: 600px;
+        margin: auto;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        background: white;
+      }
+
+      h1 {
+        text-align: center;
+      }
+
+      .input-group {
+        margin-bottom: 15px;
+      }
+
+      .input-group label {
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      .input-group input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+
+      .input-group .dividends {
+        margin-top: 10px;
+        padding: 10px;
+        background: #e9e9e9;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+
+      #results {
+        margin-top: 20px;
+        border-top: 2px solid #ccc;
+        padding-top: 10px;
+      }
+
+      #results table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      #results th,
+      #results td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: center;
+      }
+
+      #results th {
+        background-color: #f0f0f0;
+      }
+
+      #results tr:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+
+      #results tr:nth-child(odd) {
+        background-color: #ffffff;
+      }
+
+      #totalRate {
+        margin-top: 20px;
+        font-size: 18px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>投资分红计算器</h1>
+    <div class="input-group">
+      <label for="initialAmount">原始金额:</label>
+      <input
+        type="number"
+        id="initialAmount"
+        placeholder="输入原始金额"
+        required
+      />
+    </div>
+
+    <div class="input-group">
+      <label for="currentAmount">当前金额:</label>
+      <input
+        type="number"
+        id="currentAmount"
+        placeholder="输入当前金额 (可选)"
+      />
+    </div>
+
+    <div class="input-group">
+      <label for="startDate">投资开始日期:</label>
+      <input type="date" id="startDate" required />
+    </div>
+
+    <div id="dividendInputs" class="input-group"></div>
+
+    <button id="calculateBtn">计算</button>
+
+    <div id="results">
+      <h2>计算结果:</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>上一年原始资金</th>
+            <th>当年分红累加</th>
+            <th>原始资金利率(%)</th>
+            <th>当年复利(%)</th>
+          </tr>
+        </thead>
+        <tbody id="resultsBody"></tbody>
+      </table>
+    </div>
+
+    <div id="totalRate"></div>
+
+    <script>
+      function init() {
+        const initialAmount = 10000;
+        const startDate = "2022-06-20";
+
+        document.getElementById("initialAmount").value = initialAmount;
+        document.getElementById("startDate").value = startDate;
+
+        document.getElementById("startDate").dispatchEvent(new Event("change"));
+      }
+
+      document
+        .getElementById("startDate")
+        .addEventListener("change", function () {
+          const startDate = new Date(this.value);
+          const currentDate = new Date();
+          const yearsDifference = Math.floor(
+            currentDate.getFullYear() - startDate.getFullYear()
+          );
+
+          const dividendInputs = document.getElementById("dividendInputs");
+          dividendInputs.innerHTML = ""; // 清空旧的输入框
+
+          for (let i = 1; i <= yearsDifference; i++) {
+            const inputDiv = document.createElement("div");
+            inputDiv.classList.add("dividends");
+            inputDiv.innerHTML = `
+                        <label for="dividendYear${i}">第 ${i} 年分红:</label>
+                        <input type="number" id="dividendYear${i}" placeholder="输入第 ${i} 年的分红" />
+                    `;
+            dividendInputs.appendChild(inputDiv);
+          }
+        });
+
+      document
+        .getElementById("calculateBtn")
+        .addEventListener("click", function () {
+          const initialAmount = parseFloat(
+            document.getElementById("initialAmount").value
+          );
+          const currentAmount = parseFloat(
+            document.getElementById("currentAmount").value
+          );
+          const startDate = new Date(
+            document.getElementById("startDate").value
+          );
+          const currentDate = new Date();
+          const yearsDifference = Math.floor(
+            currentDate.getFullYear() - startDate.getFullYear()
+          );
+
+          const resultsBody = document.getElementById("resultsBody");
+          resultsBody.innerHTML = ""; // 清空旧的结果
+          let cumulativeAmount = initialAmount; // 初始化累加金额为原始金额
+          let previousCumulativeAmount = initialAmount; // 初始化上一年原始资金为原始金额
+
+          for (let i = 1; i <= yearsDifference; i++) {
+            const dividend =
+              parseFloat(document.getElementById(`dividendYear${i}`).value) ||
+              0;
+            cumulativeAmount += dividend; // 更新累加金额
+
+            const originalRate = (dividend / initialAmount) * 100; // 计算原始资金利率
+            const interestRate = (dividend / previousCumulativeAmount) * 100; // 计算当年复利
+
+            // 记录当前的累加金额作为上一年的原始资金
+            resultsBody.innerHTML += `<tr>
+              <td>${previousCumulativeAmount.toFixed(2)}</td>
+              <td>${cumulativeAmount.toFixed(2)}</td>
+              <td style="color: ${
+                originalRate >= 0 ? "red" : "green"
+              }">${originalRate.toFixed(2)}%</td>
+              <td style="color: ${
+                interestRate >= 0 ? "red" : "green"
+              }">${interestRate.toFixed(2)}%</td>
+            </tr>`;
+
+            // 更新上一年原始资金
+            previousCumulativeAmount = cumulativeAmount;
+          }
+
+          // 计算年化利率
+          let annualizedRate = 0;
+
+          if (yearsDifference > 0) {
+            if (Number(currentAmount) > 0) {
+              annualizedRate =
+                Math.pow(currentAmount / initialAmount, 1 / yearsDifference) -
+                1;
+              annualizedRate *= 100; // 转换为百分比
+            } else {
+              annualizedRate =
+                Math.pow(
+                  cumulativeAmount / initialAmount,
+                  1 / yearsDifference
+                ) - 1;
+              annualizedRate *= 100; // 转换为百分比
+            }
+          }
+
+          document.getElementById(
+            "totalRate"
+          ).innerHTML = `年化利率: <span style="color: ${
+            annualizedRate >= 0 ? "red" : "green"
+          }">${annualizedRate.toFixed(2)}%</span>`;
+        });
+
+      // 页面加载时执行初始化
+      init();
+    </script>
+  </body>
+</html>
